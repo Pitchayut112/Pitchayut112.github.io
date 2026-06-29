@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แอดมิน — จัดการคิวไลฟ์สด</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<!-- Gate screen: ใส่รหัสแอดมินก่อนเข้า -->
+<div class="gate-wrap" id="gateScreen">
+  <div class="card gate-card">
+    <h1>หน้าแอดมิน</h1>
+    <p>กรอกรหัสผ่านแอดมินเพื่อเข้าจัดการระบบ</p>
+    <div class="field" style="text-align:left">
+      <input type="password" id="adminPassInput" placeholder="รหัสผ่านแอดมิน">
+    </div>
+    <div id="adminPassError" class="msg err hidden">รหัสผ่านไม่ถูกต้อง</div>
+    <button class="btn" id="adminUnlockBtn" style="width:100%;justify-content:center">เข้าสู่ระบบ</button>
+  </div>
+</div>
+
+<!-- Admin screen -->
+<div class="hidden" id="adminScreen">
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span> LIVE BOOKING · แอดมิน</div>
+    <div class="topbar-right">
+      <a class="pill" href="index.html">ดูหน้าจองคิว</a>
+      <button class="pill" id="logoutAdminBtn">ออกจากระบบแอดมิน</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="toast" class="msg hidden"></div>
+
+    <!-- Customers section -->
+    <div class="admin-section">
+      <div class="section-head">
+        <h2>ลูกค้า (ผู้มีรหัสจองคิว)</h2>
+        <button class="btn" id="addCustomerBtn">+ เพิ่มลูกค้า</button>
+      </div>
+      <div id="customerList"></div>
+    </div>
+
+    <!-- Bookings section -->
+    <div class="admin-section">
+      <div class="section-head">
+        <h2>การจองคิว</h2>
+        <button class="btn" id="addBookingBtn">+ เพิ่มคิว</button>
+      </div>
+
+      <div class="month-nav">
+        <div class="label" id="monthLabel">—</div>
+        <div class="nav-btns">
+          <button id="prevMonthBtn" aria-label="เดือนก่อนหน้า">‹</button>
+          <button id="nextMonthBtn" aria-label="เดือนถัดไป">›</button>
+        </div>
+      </div>
+
+      <div id="bookingList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Customer modal -->
+<div class="modal-backdrop hidden" id="customerModal">
+  <div class="modal">
+    <h3 id="customerModalTitle">เพิ่มลูกค้าใหม่</h3>
+    <div id="customerError" class="msg err hidden"></div>
+    <div class="field">
+      <label for="custUsername">ชื่อผู้ใช้ (สำหรับล็อกอิน)</label>
+      <input type="text" id="custUsername" placeholder="เช่น shop_a">
+    </div>
+    <div class="field">
+      <label for="custPassword">รหัสผ่าน</label>
+      <input type="text" id="custPassword" placeholder="ตั้งรหัสผ่านให้ลูกค้า">
+    </div>
+    <div class="field">
+      <label for="custDisplayName">ชื่อที่แสดง (โชว์ตอนลูกค้าล็อกอิน/ในหน้าแอดมิน)</label>
+      <input type="text" id="custDisplayName" placeholder="เช่น ร้าน A">
+    </div>
+    <div class="field">
+      <label for="custColor">สีประจำตัว</label>
+      <input type="color" id="custColor" value="#3DDC97" style="height:42px">
+    </div>
+    <div class="field" style="display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="custActive" style="width:auto" checked>
+      <label for="custActive" style="margin:0">เปิดใช้งานบัญชีนี้</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="customerCancelBtn">ยกเลิก</button>
+      <button class="btn" id="customerSaveBtn">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Booking modal -->
+<div class="modal-backdrop hidden" id="bookingModal">
+  <div class="modal">
+    <h3 id="bookingModalTitle">เพิ่มคิวใหม่</h3>
+    <div id="bookingError" class="msg err hidden"></div>
+    <div class="field">
+      <label for="bookingDateInput">วันที่</label>
+      <input type="date" id="bookingDateInput">
+    </div>
+    <div class="field">
+      <label for="bookingCustomerSelect">ลูกค้า</label>
+      <select id="bookingCustomerSelect"></select>
+    </div>
+    <div class="field">
+      <label for="bookingNoteInput">หมายเหตุ (ไม่บังคับ)</label>
+      <textarea id="bookingNoteInput" rows="3"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn secondary" id="bookingCancelBtn">ยกเลิก</button>
+      <button class="btn" id="bookingSaveBtn">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/config.js"></script>
+<script src="assets/admin.js"></script>
+</body>
+</html>
