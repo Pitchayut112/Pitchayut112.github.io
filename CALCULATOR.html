@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SCALE PRICE — TikTok Shop Calculator</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: #0a0a0a;
+  color: #e8e8e8;
+  min-height: 100vh;
+  padding: 1.5rem 1rem 3rem;
+}
+.container { max-width: 720px; margin: 0 auto; }
+
+header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.75rem; }
+.logo { display: flex; gap: 5px; align-items: center; }
+.dot { width: 9px; height: 9px; border-radius: 50%; }
+.dot-r { background: #fe2c55; }
+.dot-c { background: #25f4ee; margin-left: -5px; }
+header h1 { font-size: 13px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #fff; }
+header span { font-size: 13px; color: #444; letter-spacing: 0.08em; text-transform: uppercase; }
+
+.slabel {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: #444; margin-bottom: 8px; margin-top: 1.25rem;
+}
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+.icard {
+  background: #141414; border: 1px solid #222; border-radius: 10px;
+  padding: 12px 14px;
+}
+.icard label { display: block; font-size: 10px; color: #555; margin-bottom: 5px; letter-spacing: 0.04em; }
+.irow { display: flex; align-items: baseline; gap: 2px; }
+.pfx { font-size: 18px; font-weight: 600; color: #333; }
+.sfx { font-size: 18px; font-weight: 600; color: #333; }
+.icard input[type="number"] {
+  width: 100%; background: transparent; border: none; outline: none;
+  font-size: 20px; font-weight: 600; color: #fff; font-family: inherit;
+  -moz-appearance: textfield;
+}
+.icard input[type="number"]::-webkit-inner-spin-button,
+.icard input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* fee editable rows */
+.fee-edit-box {
+  background: #141414; border: 1px solid #222; border-radius: 10px;
+  padding: 6px 14px; margin-top: 8px;
+}
+.fee-edit-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid #1a1a1a; gap: 8px;
+}
+.fee-edit-row:last-child { border-bottom: none; }
+.fe-name { font-size: 12px; color: #666; flex: 1; }
+.fe-input-wrap { display: flex; align-items: baseline; gap: 2px; }
+.fe-input-wrap input[type="number"] {
+  background: #1e1e1e; border: 1px solid #2a2a2a; border-radius: 6px;
+  color: #fff; font-size: 14px; font-weight: 600; font-family: inherit;
+  padding: 4px 6px; width: 72px; text-align: right; outline: none;
+  -moz-appearance: textfield;
+}
+.fe-input-wrap input[type="number"]::-webkit-inner-spin-button,
+.fe-input-wrap input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+.fe-input-wrap input[type="number"]:focus { border-color: #fe2c55; }
+.fe-unit { font-size: 12px; color: #555; margin-left: 2px; }
+.fe-calc { font-size: 12px; color: #e8e8e8; font-variant-numeric: tabular-nums; min-width: 60px; text-align: right; }
+.fe-toggle { display: flex; align-items: center; gap: 6px; }
+.fe-sub { font-size: 9px; color: #3a3a3a; display: block; margin-top: 1px; }
+
+/* toggle */
+.toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.tslider {
+  position: absolute; inset: 0; background: #222; border-radius: 20px;
+  cursor: pointer; transition: background 0.2s;
+}
+.tslider:before {
+  content: ''; position: absolute; width: 14px; height: 14px;
+  left: 3px; top: 3px; background: #555; border-radius: 50%; transition: all 0.2s;
+}
+input:checked + .tslider { background: #fe2c55; }
+input:checked + .tslider:before { transform: translateX(16px); background: #fff; }
+
+/* fee total row */
+.fee-total-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 14px; background: #1a1a1a; border-radius: 0 0 10px 10px;
+  border: 1px solid #222; border-top: 1px solid #333; margin-top: -1px; font-size: 13px;
+}
+.fee-total-row .ft-name { color: #999; font-weight: 600; }
+.fee-total-row .ft-amt { color: #fe2c55; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* results */
+.results { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.rcard {
+  border-radius: 10px; padding: 14px 16px; text-align: center;
+  background: #141414; border: 1px solid #222;
+}
+.rcard.main { grid-column: 1 / -1; background: #fe2c55; border-color: #fe2c55; }
+.rlabel { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 5px; }
+.rcard .rlabel { color: #555; }
+.rcard.main .rlabel { color: rgba(255,255,255,0.6); }
+.rval { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.rcard .rval { color: #e8e8e8; }
+.rcard.main .rval { color: #fff; }
+.positive { color: #25f4ee !important; }
+.negative { color: #fe2c55 !important; }
+
+.bar-wrap {
+  background: #141414; border: 1px solid #222; border-radius: 10px;
+  padding: 14px 16px; margin-top: 8px;
+}
+.bar-header { display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-bottom: 8px; }
+.bar-track { height: 5px; background: #1e1e1e; border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+.bar-legend { display: flex; gap: 14px; margin-top: 8px; flex-wrap: wrap; }
+.bl { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #555; }
+.bl-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.note { font-size: 10px; color: #3a3a3a; text-align: center; margin-top: 1.5rem; line-height: 1.8; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <div class="logo">
+    <div class="dot dot-r"></div>
+    <div class="dot dot-c"></div>
+  </div>
+  <h1>Scale Price</h1>
+  <span>/ TikTok Shop</span>
+</header>
+
+<!-- COST INPUTS -->
+<div class="slabel">ต้นทุนสินค้า</div>
+<div class="g3">
+  <div class="icard">
+    <label>Product Cost (฿)</label>
+    <div class="irow"><span class="pfx">฿</span><input type="number" id="product_cost" value="35" min="0" oninput="calc()"></div>
+  </div>
+  <div class="icard">
+    <label>ค่ากล่อง / Packaging</label>
+    <div class="irow"><span class="pfx">฿</span><input type="number" id="box" value="7" min="0" oninput="calc()"></div>
+  </div>
+  <div class="icard">
+    <label>Fix Cost + Overhead</label>
+    <div class="irow"><span class="pfx">฿</span><input type="number" id="fixcost" value="15" min="0" oninput="calc()"></div>
+  </div>
+</div>
+
+<div class="slabel">ค่าใช้จ่ายเพิ่มเติม</div>
+<div class="g3">
+  <div class="icard">
+    <label>ค่าส่ง Shipping Fee</label>
+    <div class="irow"><span class="pfx">฿</span><input type="number" id="shipping" value="6.7" min="0" step="0.1" oninput="calc()"></div>
+  </div>
+  <div class="icard">
+    <label>ค่าโฆษณา AD</label>
+    <div class="irow"><span class="pfx">฿</span><input type="number" id="ad" value="20" min="0" oninput="calc()"></div>
+  </div>
+  <div class="icard">
+    <label>Sample Cost / ชิ้น</label>
+    <div class="irow"><span class="pfx">฿</span><input type="number" id="sample" value="0" min="0" step="0.1" oninput="calc()"></div>
+  </div>
+</div>
+
+<div class="slabel">กำไรที่ต้องการ</div>
+<div class="g2">
+  <div class="icard">
+    <label>กำไรขั้นต่ำที่ต้องการ (฿)</label>
+    <div class="irow"><span class="pfx">฿</span><input type="number" id="profit_target" value="50" min="0" oninput="calc()"></div>
+  </div>
+</div>
+
+<!-- VAT + INTL/DOMESTIC SHIPPING -->
+<div class="slabel">VAT &amp; ขนส่งเพิ่มเติม — แก้ไขได้</div>
+<div class="fee-edit-box">
+
+  <!-- VAT ซื้อ -->
+  <div class="fee-edit-row">
+    <span class="fe-name">VAT ซื้อ<span class="fe-sub">7% × ราคาทุน</span></span>
+    <div class="fe-toggle">
+      <label class="toggle"><input type="checkbox" id="vatbuy_toggle" onchange="calc()"><span class="tslider"></span></label>
+      <div class="fe-input-wrap">
+        <input type="number" id="r-vatbuy" value="7" step="0.01" min="0" max="100" oninput="calc()">
+        <span class="fe-unit">%</span>
+      </div>
+      <span class="fe-calc" id="fc-vatbuy">฿0.00</span>
+    </div>
+  </div>
+
+  <!-- ขนส่งระหว่างประเทศ -->
+  <div class="fee-edit-row">
+    <span class="fe-name">ขนส่งระหว่างประเทศ</span>
+    <div class="fe-toggle">
+      <label class="toggle"><input type="checkbox" id="intlship_toggle" onchange="calc()"><span class="tslider"></span></label>
+      <div class="fe-input-wrap">
+        <input type="number" id="r-intlship" value="0" step="0.1" min="0" oninput="calc()">
+        <span class="fe-unit">฿</span>
+      </div>
+      <span class="fe-calc" id="fc-intlship">฿0.00</span>
+    </div>
+  </div>
+
+  <!-- ขนส่งภายในประเทศ -->
+  <div class="fee-edit-row">
+    <span class="fe-name">ขนส่งภายในประเทศ</span>
+    <div class="fe-toggle">
+      <label class="toggle"><input type="checkbox" id="domship_toggle" onchange="calc()"><span class="tslider"></span></label>
+      <div class="fe-input-wrap">
+        <input type="number" id="r-domship" value="0" step="0.1" min="0" oninput="calc()">
+        <span class="fe-unit">฿</span>
+      </div>
+      <span class="fe-calc" id="fc-domship">฿0.00</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- FEES EDITABLE -->
+<div class="slabel">ค่าธรรมเนียม Platform — แก้ไขได้</div>
+<div class="fee-edit-box">
+
+  <!-- Commission -->
+  <div class="fee-edit-row">
+    <span class="fe-name">Commission Fee</span>
+    <div class="fe-toggle">
+      <div class="fe-input-wrap">
+        <input type="number" id="r-comm" value="6.42" step="0.01" min="0" max="100" oninput="calc()">
+        <span class="fe-unit">%</span>
+      </div>
+      <span class="fe-calc" id="fc-comm">฿0.00</span>
+    </div>
+  </div>
+
+  <!-- Transaction -->
+  <div class="fee-edit-row">
+    <span class="fe-name">Transaction Fee</span>
+    <div class="fe-toggle">
+      <div class="fe-input-wrap">
+        <input type="number" id="r-tx" value="3.21" step="0.01" min="0" max="100" oninput="calc()">
+        <span class="fe-unit">%</span>
+      </div>
+      <span class="fe-calc" id="fc-tx">฿0.00</span>
+    </div>
+  </div>
+
+  <!-- Commerce Growth -->
+  <div class="fee-edit-row">
+    <span class="fe-name">Commerce Growth Fee</span>
+    <div class="fe-toggle">
+      <div class="fe-input-wrap">
+        <input type="number" id="r-growth" value="7.49" step="0.01" min="0" max="100" oninput="calc()">
+        <span class="fe-unit">%</span>
+      </div>
+      <span class="fe-calc" id="fc-growth">฿0.00</span>
+    </div>
+  </div>
+
+  <!-- Infrastructure -->
+  <div class="fee-edit-row">
+    <span class="fe-name">Infrastructure Fee</span>
+    <div class="fe-toggle">
+      <div class="fe-input-wrap">
+        <input type="number" id="r-infra" value="1.07" step="0.01" min="0" oninput="calc()">
+        <span class="fe-unit">฿</span>
+      </div>
+      <span class="fe-calc" id="fc-infra">฿1.07</span>
+    </div>
+  </div>
+
+  <!-- LSP -->
+  <div class="fee-edit-row">
+    <span class="fe-name">LSP Campaign Fee</span>
+    <div class="fe-toggle">
+      <label class="toggle"><input type="checkbox" id="lsp_toggle" checked onchange="calc()"><span class="tslider"></span></label>
+      <div class="fe-input-wrap">
+        <input type="number" id="r-lsp" value="3.21" step="0.01" min="0" max="100" oninput="calc()">
+        <span class="fe-unit">%</span>
+      </div>
+      <span class="fe-calc" id="fc-lsp">฿0.00</span>
+    </div>
+  </div>
+
+  <!-- Flash Sale -->
+  <div class="fee-edit-row">
+    <span class="fe-name">Flash Sale Fee</span>
+    <div class="fe-toggle">
+      <label class="toggle"><input type="checkbox" id="flash_toggle" onchange="calc()"><span class="tslider"></span></label>
+      <div class="fe-input-wrap">
+        <input type="number" id="r-flash" value="3.21" step="0.01" min="0" max="100" oninput="calc()">
+        <span class="fe-unit">%</span>
+      </div>
+      <span class="fe-calc" id="fc-flash">฿0.00</span>
+    </div>
+  </div>
+
+  <!-- Influencer / KOL -->
+  <div class="fee-edit-row">
+    <span class="fe-name">Influencer / KOL Commission</span>
+    <div class="fe-toggle">
+      <label class="toggle"><input type="checkbox" id="influ_toggle" onchange="calc()"><span class="tslider"></span></label>
+      <div class="fe-input-wrap">
+        <input type="number" id="r-influ" value="10" step="0.01" min="0" max="100" oninput="calc()">
+        <span class="fe-unit">%</span>
+      </div>
+      <span class="fe-calc" id="fc-influ">฿0.00</span>
+    </div>
+  </div>
+
+  <!-- Return -->
+  <div class="fee-edit-row">
+    <span class="fe-name">Return / Damaged (est.)</span>
+    <div class="fe-toggle">
+      <label class="toggle"><input type="checkbox" id="return_toggle" onchange="calc()"><span class="tslider"></span></label>
+      <div class="fe-input-wrap">
+        <input type="number" id="r-return" value="5" step="0.1" min="0" max="100" oninput="calc()">
+        <span class="fe-unit">%</span>
+      </div>
+      <span class="fe-calc" id="fc-return">฿0.00</span>
+    </div>
+  </div>
+
+  <!-- VAT ขาย -->
+  <div class="fee-edit-row">
+    <span class="fe-name">VAT ขาย<span class="fe-sub">7% × ราคาขาย</span></span>
+    <div class="fe-toggle">
+      <label class="toggle"><input type="checkbox" id="vatsell_toggle" onchange="calc()"><span class="tslider"></span></label>
+      <div class="fe-input-wrap">
+        <input type="number" id="r-vatsell" value="7" step="0.01" min="0" max="100" oninput="calc()">
+        <span class="fe-unit">%</span>
+      </div>
+      <span class="fe-calc" id="fc-vatsell">฿0.00</span>
+    </div>
+  </div>
+
+</div>
+<div class="fee-total-row">
+  <span class="ft-name">รวมค่าธรรมเนียมทั้งหมด</span>
+  <span class="ft-amt" id="f-total">฿0.00</span>
+</div>
+
+<!-- RESULTS -->
+<div class="slabel">ผลลัพธ์</div>
+<div class="results">
+  <div class="rcard main">
+    <div class="rlabel">ราคาตั้งขายขั้นต่ำ</div>
+    <div class="rval" id="r-price">฿0</div>
+  </div>
+  <div class="rcard">
+    <div class="rlabel">กำไรสุทธิ</div>
+    <div class="rval positive" id="r-profit">฿0</div>
+  </div>
+  <div class="rcard">
+    <div class="rlabel">% กำไร / ราคาขาย</div>
+    <div class="rval" id="r-margin">0%</div>
+  </div>
+</div>
+
+<div class="bar-wrap">
+  <div class="bar-header">
+    <span>สัดส่วนต้นทุนทั้งหมด</span>
+    <span id="cost-pct">0%</span>
+  </div>
+  <div class="bar-track">
+    <div class="bar-fill" id="bar-cost" style="width:0%; background:#fe2c55;"></div>
+  </div>
+  <div class="bar-legend">
+    <span class="bl"><span class="bl-dot" style="background:#fe2c55"></span>สูง (>85%)</span>
+    <span class="bl"><span class="bl-dot" style="background:#f59e0b"></span>ปานกลาง (70–85%)</span>
+    <span class="bl"><span class="bl-dot" style="background:#25f4ee"></span>ดี (<70%)</span>
+  </div>
+</div>
+
+<div class="note">
+  ค่าธรรมเนียมปรับได้ตามจริง · อ้างอิง TikTok Shop University Thailand · อัปเดต มิ.ย. 2026
+</div>
+
+</div>
+
+<script>
+function g(id) { return parseFloat(document.getElementById(id).value) || 0; }
+function chk(id) { return document.getElementById(id).checked; }
+function fmt(n) { return '฿' + n.toFixed(2); }
+function fmtInt(n) { return '฿' + Math.round(n).toLocaleString(); }
+
+function calc() {
+  const productCost = g('product_cost');
+  const box         = g('box');
+  const fixcost     = g('fixcost');
+  const shipping    = g('shipping');
+  const ad          = g('ad');
+  const sample      = g('sample');
+  const wantProfit  = g('profit_target');
+
+  const rComm   = g('r-comm')   / 100;
+  const rTx     = g('r-tx')     / 100;
+  const rGrowth = g('r-growth') / 100;
+  const rInfra  = g('r-infra');
+  const rLsp    = g('r-lsp')    / 100;
+  const rFlash  = g('r-flash')  / 100;
+  const rInflu  = g('r-influ')  / 100;
+  const rReturn = g('r-return') / 100;
+  const rVatSell = g('r-vatsell') / 100;
+  const rVatBuy  = g('r-vatbuy')  / 100;
+  const intlShip = g('r-intlship');
+  const domShip  = g('r-domship');
+
+  const hasLSP     = chk('lsp_toggle');
+  const hasFlash   = chk('flash_toggle');
+  const hasInflu   = chk('influ_toggle');
+  const hasReturn  = chk('return_toggle');
+  const hasVatSell = chk('vatsell_toggle');
+  const hasVatBuy  = chk('vatbuy_toggle');
+  const hasIntlShip = chk('intlship_toggle');
+  const hasDomShip  = chk('domship_toggle');
+
+  const vatBuyAmt   = hasVatBuy   ? productCost * rVatBuy : 0;
+  const intlShipAmt = hasIntlShip ? intlShip : 0;
+  const domShipAmt  = hasDomShip  ? domShip  : 0;
+
+  const totalCost = productCost + box + fixcost + shipping + ad + sample + vatBuyAmt + intlShipAmt + domShipAmt;
+
+  let totalPctFee = rComm + rTx + rGrowth;
+  if (hasLSP)     totalPctFee += rLsp;
+  if (hasFlash)   totalPctFee += rFlash;
+  if (hasInflu)   totalPctFee += rInflu;
+  if (hasReturn)  totalPctFee += rReturn;
+  if (hasVatSell) totalPctFee += rVatSell;
+
+  const price = (totalCost + wantProfit + rInfra) / (1 - totalPctFee);
+
+  const commAmt    = price * rComm;
+  const txAmt      = price * rTx;
+  const growthAmt  = price * rGrowth;
+  const lspAmt     = hasLSP     ? price * rLsp     : 0;
+  const flashAmt   = hasFlash   ? price * rFlash   : 0;
+  const influAmt   = hasInflu   ? price * rInflu   : 0;
+  const returnAmt  = hasReturn  ? price * rReturn  : 0;
+  const vatSellAmt = hasVatSell ? price * rVatSell : 0;
+  const totalFee   = commAmt + txAmt + growthAmt + rInfra + lspAmt + flashAmt + influAmt + returnAmt + vatSellAmt;
+  const netProfit = price - totalCost - totalFee;
+  const marginPct = price > 0 ? (netProfit / price) * 100 : 0;
+  const costRatio = price > 0 ? ((totalCost + totalFee) / price) * 100 : 0;
+
+  // update fee calc displays
+  document.getElementById('fc-comm').textContent     = fmt(commAmt);
+  document.getElementById('fc-tx').textContent       = fmt(txAmt);
+  document.getElementById('fc-growth').textContent   = fmt(growthAmt);
+  document.getElementById('fc-infra').textContent    = fmt(rInfra);
+  document.getElementById('fc-lsp').textContent      = hasLSP      ? fmt(lspAmt)     : '—';
+  document.getElementById('fc-flash').textContent    = hasFlash    ? fmt(flashAmt)   : '—';
+  document.getElementById('fc-influ').textContent    = hasInflu    ? fmt(influAmt)   : '—';
+  document.getElementById('fc-return').textContent   = hasReturn   ? fmt(returnAmt)  : '—';
+  document.getElementById('fc-vatsell').textContent  = hasVatSell  ? fmt(vatSellAmt) : '—';
+  document.getElementById('fc-vatbuy').textContent   = hasVatBuy   ? fmt(vatBuyAmt)  : '—';
+  document.getElementById('fc-intlship').textContent = hasIntlShip ? fmt(intlShipAmt) : '—';
+  document.getElementById('fc-domship').textContent  = hasDomShip  ? fmt(domShipAmt)  : '—';
+  document.getElementById('f-total').textContent     = fmt(totalFee);
+
+  document.getElementById('r-price').textContent = fmtInt(price);
+
+  const profitEl = document.getElementById('r-profit');
+  profitEl.textContent = fmt(netProfit);
+  profitEl.className = 'rval ' + (netProfit >= 0 ? 'positive' : 'negative');
+
+  const marginEl = document.getElementById('r-margin');
+  marginEl.textContent = marginPct.toFixed(1) + '%';
+  marginEl.className = 'rval ' + (marginPct >= 20 ? 'positive' : marginPct >= 10 ? '' : 'negative');
+
+  const ratio = Math.min(costRatio, 100);
+  const bar = document.getElementById('bar-cost');
+  bar.style.width = ratio.toFixed(1) + '%';
+  bar.style.background = ratio > 85 ? '#fe2c55' : ratio > 70 ? '#f59e0b' : '#25f4ee';
+  document.getElementById('cost-pct').textContent = ratio.toFixed(1) + '%';
+}
+
+calc();
+</script>
+</body>
+</html>
